@@ -1,6 +1,6 @@
-import { WordList } from "../qrl/wordlist.js";
+const getWordList = require("../qrl/wordlist.js");
 
-export function SeedBinToMnemonic(input) {
+function SeedBinToMnemonic(input) {
     return binToMnemonic(input);
 }
 
@@ -8,6 +8,7 @@ function binToMnemonic(input) {
     if (String(input).length % 3 != 0) {
         console.error("byte count needs to be a multiple of 3");
     }
+    let WordList_ = getWordList()
     let mnemonic = ''
     var separator = "";
     let buf = Buffer.alloc(input.length * 4);
@@ -24,9 +25,11 @@ function binToMnemonic(input) {
         } else {
             idx = ((b1 & 0x0F) << 8) + b2;
         }
-        mnemonic += separator + WordList[idx];
+        mnemonic += separator + WordList_[idx];
         separator = " ";
     }
     // return buf.toString()
     return mnemonic;
 }
+
+module.exports = SeedBinToMnemonic;

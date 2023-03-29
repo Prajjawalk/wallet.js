@@ -1,4 +1,5 @@
-export const WordList = [
+function getWordList(){
+    const WordList = [
     "aback", "abbey", "abbot", "abide", "ablaze", "able", "aboard", "abode", "abort", "abound", "about", "above",
     "abra", "abroad", "abrupt", "absent", "absorb", "absurd", "accent", "accept", "access", "accord", "accuse",
     "ace",
@@ -372,3 +373,9 @@ export const WordList = [
     "yarn", "yeah", "year", "yeast", "yellow", "yemen", "yet", "yield", "yogurt", "yokel", "yolk", "york",
     "you", "young", "your", "youth", "zaire", "zeal", "zebra", "zenith", "zero", "zigzag", "zinc", "zing",
     "zipper", "zombie", "zone", "zurich"]
+
+    return WordList;
+}
+
+
+module.exports = getWordList;

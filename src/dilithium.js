@@ -1,10 +1,9 @@
-import pkg from 'randombytes';  // eslint-disable-line import/no-extraneous-dependencies
-import { SHAKE } from 'sha3'; // eslint-disable-line import/no-extraneous-dependencies
-import { cryptoSign, cryptoSignKeypair, cryptoSignOpen, cryptoSignVerify, cryptoSignSignature, CryptoPublicKeyBytes, CryptoSecretKeyBytes, SeedBytes, CryptoBytes } from '@theqrl/dilithium5';
-import { SeedBinToMnemonic } from './utils/mnemonic.js';
-const randomBytes = pkg;
+const randomBytes = require('randombytes');  // eslint-disable-line import/no-extraneous-dependencies
+const {SHAKE} = require('sha3'); // eslint-disable-line import/no-extraneous-dependencies
+const SeedBinToMnemonic = require('./utils/mnemonic.js');
 
-function New() {
+async function New() {
+    let { cryptoSignKeypair, CryptoPublicKeyBytes, CryptoSecretKeyBytes } = await import(/* webpackMode: "eager" */ '@theqrl/dilithium5')
     var pk = new Uint8Array(CryptoPublicKeyBytes);
     var sk = new Uint8Array(CryptoSecretKeyBytes);
 
@@ -40,7 +39,8 @@ function New() {
     return dilithium
 }
 
-function NewDilithiumFromSeed(seed) {
+async function NewDilithiumFromSeed(seed) {
+    let { cryptoSignKeypair, CryptoPublicKeyBytes, CryptoSecretKeyBytes } = await import(/* webpackMode: "eager" */ '@theqrl/dilithium5')
     var pk = new Uint8Array(CryptoPublicKeyBytes);
     var sk = new Uint8Array(CryptoSecretKeyBytes);
 
@@ -96,13 +96,15 @@ function GetMnemonic() {
 }
 
 // Seal the message, returns signature attached with message.
-function Seal(message) {
+async function Seal(message) {
+    let { cryptoSign } = await import(/* webpackMode: "eager" */ '@theqrl/dilithium5/src/index.js')
     return cryptoSign(message, this.sk, this.randomizedSigning)
 }
 
 // Sign the message, and return a detached signature. Detached signatures are
 // variable sized, but never larger than SIG_SIZE_PACKED.
-function Sign(message) {
+async function Sign(message) {
+    let { cryptoSign, CryptoBytes } = await import(/* webpackMode: "eager" */ '@theqrl/dilithium5/src/index.js')
     let sm = cryptoSign(message, this.sk)
     var signature = new Uint8Array(CryptoBytes)
     signature = sm.slice(0, CryptoBytes)
@@ -115,21 +117,25 @@ function GetAddress() {
 
 // Open the sealed message m. Returns the original message sealed with signature.
 // In case the signature is invalid, nil is returned.
-function Open(signatureMessage, pk) {
+async function Open(signatureMessage, pk) {
+    let { cryptoSignOpen } = await import(/* webpackMode: "eager" */ '@theqrl/dilithium5/src/index.js')
     return cryptoSignOpen(signatureMessage, pk)
 }
 
-function Verify(message, signature, pk) {
+async function Verify(message, signature, pk) {
+    let { cryptoSignVerify } = await import(/* webpackMode: "eager" */ '@theqrl/dilithium5/src/index.js')
     return cryptoSignVerify(signature, message, pk)
 }
 
 // ExtractMessage extracts message from Signature attached with message.
-function ExtractMessage(signatureMessage) {
+async function ExtractMessage(signatureMessage) {
+    const { CryptoBytes } = await import('@theqrl/dilithium5')
     return signatureMessage.slice(CryptoBytes, signatureMessage.length)
 }
 
 // ExtractSignature extracts signature from Signature attached with message.
-function ExtractSignature(signatureMessage) {
+async function ExtractSignature(signatureMessage) {
+    let { CryptoBytes } = await import(/* webpackMode: "eager" */ '@theqrl/dilithium5/src/index.js')
     return signatureMessage.slice(0, CryptoBytes)
 }
 
@@ -168,9 +174,8 @@ function IsValidDilithiumAddress(address) {
     return true
 }
 
-let DilithiumWallet;
-
-export default DilithiumWallet = {
+let DilithiumWallet = {
     New, NewDilithiumFromSeed, Open, Verify, ExtractMessage, ExtractSignature, GetDilithiumDescriptor, GetDilithiumAddressFromPK, IsValidDilithiumAddress
 }
+module.exports = DilithiumWallet;
 
